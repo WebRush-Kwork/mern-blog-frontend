@@ -4,6 +4,7 @@ import { Header } from "./components";
 import { Home, FullPost, Registration, AddPost, Login } from "./pages";
 
 function App() {
+  // gleb's code
   return (
     <>
       <Header />
