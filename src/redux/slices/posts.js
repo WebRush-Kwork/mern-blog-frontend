@@ -19,6 +19,14 @@ export const fetchRemovePost = createAsyncThunk(
 	}
 )
 
+export const fetchPostsByPopularity = createAsyncThunk(
+	'posts/fetchPostsByPopularity',
+	async () => {
+		const { data } = await axios.get('/posts/popular')
+		return data
+	}
+)
+
 const initialState = {
 	posts: {
 		items: [],
@@ -60,7 +68,21 @@ const postsSlice = createSlice({
 			state.tags.status = 'error'
 		},
 		[fetchRemovePost.pending]: (state, action) => {
-			state.posts.items = state.posts.items.filter(obj => obj._id !== action.meta.arg)
+			state.posts.items = state.posts.items.filter(
+				obj => obj._id !== action.meta.arg
+			)
+		},
+		[fetchPostsByPopularity.pending]: state => {
+			state.posts.items = []
+			state.posts.status = 'loading'
+		},
+		[fetchPostsByPopularity.fulfilled]: (state, action) => {
+			state.posts.items = action.payload
+			state.posts.status = 'loaded'
+		},
+		[fetchPostsByPopularity.rejected]: state => {
+			state.posts.items = []
+			state.posts.status = 'error'
 		},
 	},
 })
