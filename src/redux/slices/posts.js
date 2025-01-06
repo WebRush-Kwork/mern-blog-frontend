@@ -27,6 +27,14 @@ export const fetchPostsByPopularity = createAsyncThunk(
 	}
 )
 
+export const fetchPostsByTags = createAsyncThunk(
+	'/tags/fetchPostsByTags',
+	async id => {
+		const { data } = await axios.get(`/posts/tags/${id}`)
+		return data
+	}
+)
+
 const initialState = {
 	posts: {
 		items: [],
@@ -81,6 +89,18 @@ const postsSlice = createSlice({
 			state.posts.status = 'loaded'
 		},
 		[fetchPostsByPopularity.rejected]: state => {
+			state.posts.items = []
+			state.posts.status = 'error'
+		},
+		[fetchPostsByTags.pending]: state => {
+			state.posts.items = []
+			state.posts.status = 'loading'
+		},
+		[fetchPostsByTags.fulfilled]: (state, action) => {
+			state.posts.items = action.payload
+			state.posts.status = 'loaded'
+		},
+		[fetchPostsByTags.rejected]: state => {
 			state.posts.items = []
 			state.posts.status = 'error'
 		},
