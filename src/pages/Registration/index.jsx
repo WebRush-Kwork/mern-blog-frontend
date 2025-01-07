@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Paper from '@mui/material/Paper'
@@ -9,22 +9,26 @@ import styles from './Login.module.scss'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { fetchAuth, fetchRegister, selectIsAuth } from '../../redux/slices/auth'
+import { fetchRegister, selectIsAuth } from '../../redux/slices/auth'
+import axios from '../../axios'
 
 export const Registration = () => {
 	const isAuth = useSelector(selectIsAuth)
 	const dispatch = useDispatch()
+	const [imageUrl, setImageUrl] = useState('')
+	const inputFileRef = useRef()
 
 	const {
 		register,
 		handleSubmit,
-		setError,
+		setValue,
 		formState: { isValid, errors },
 	} = useForm({
 		defaultValues: {
 			fullName: 'Гусляков Глеб',
 			email: 'gleb@gmail.com',
 			password: '12345',
+			avatarUrl: '',
 		},
 		mode: 'onChange',
 	})
@@ -41,6 +45,24 @@ export const Registration = () => {
 		}
 	}
 
+	const handleChangeFile = async event => {
+		try {
+			const formData = new FormData()
+			formData.append('image', event.target.files[0])
+			const { data } = await axios.post('/upload', formData)
+			setImageUrl(data.url)
+			setValue('avatarUrl', `http://localhost:4444${data.url}`)
+		} catch (err) {
+			console.log(err)
+			alert('Не удалось загрузить изображение')
+		}
+	}
+
+	const onClickRemoveImage = () => {
+		setImageUrl('')
+		setValue('avatarUrl', '')
+	}
+
 	if (isAuth) {
 		return <Navigate to='/' />
 	}
@@ -50,10 +72,43 @@ export const Registration = () => {
 			<Typography classes={{ root: styles.title }} variant='h5'>
 				Создание аккаунта
 			</Typography>
-			<div className={styles.avatar}>
-				<Avatar sx={{ width: 100, height: 100 }} />
-			</div>
 			<form onSubmit={handleSubmit(onSubmit)}>
+				<div className={styles.avatar}>
+					<Button
+						onClick={() => inputFileRef.current.click()}
+						variant='outlined'
+						style={{ marginRight: '20px' }}
+						size='large'
+					>
+						Загрузить аватар
+					</Button>
+					<input
+						ref={inputFileRef}
+						type='file'
+						onChange={handleChangeFile}
+						hidden
+					/>
+					<div>
+						{imageUrl && (
+							<>
+								<Button
+									variant='contained'
+									color='error'
+									onClick={onClickRemoveImage}
+								>
+									Удалить
+								</Button>
+							</>
+						)}
+					</div>
+				</div>
+				{imageUrl && (
+					<img
+						className={styles.image}
+						src={`http://localhost:4444${imageUrl}`}
+						alt='Uploaded'
+					/>
+				)}
 				<TextField
 					error={Boolean(errors.fullName?.message)}
 					helperText={errors.fullName?.message}

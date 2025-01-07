@@ -6,11 +6,17 @@ import { CommentsBlock } from '../components/CommentsBlock'
 import { useParams } from 'react-router-dom'
 import axios from '../axios.js'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAllComments, isData } from '../redux/slices/comment'
 
 export const FullPost = () => {
 	const [data, setData] = useState()
 	const [isLoading, setIsLoading] = useState(true)
 	const { id } = useParams()
+	const dispatch = useDispatch()
+	const comments = useSelector(state => state.comments)
+	const commentData = useSelector(state => state.comments.data)
+	const isDataLoading = comments.status === 'loading'
 
 	useEffect(() => {
 		axios
@@ -23,7 +29,27 @@ export const FullPost = () => {
 				console.warn(err)
 				alert('Ошибка')
 			})
+		dispatch(fetchAllComments())
 	}, [])
+
+	// useEffect(() => {
+	// 	const result = commentData.map(item => ({
+	// 		fullName: item.user?.fullName || 'Имя отсутствует',
+	// 		text: item.text || 'Текст отсутствует',
+	// 	}))
+
+	// 	console.log(result)
+	// }, [])
+
+	// useEffect(() => {
+	// 	setTimeout(() => {
+	// 		commentData.map(obj => {
+	// 			console.log(obj)
+	// 		})
+	// 	}, 3000)
+	// }, [])
+
+	console.log(commentData)
 
 	if (isLoading) {
 		return <Post isLoading={isLoading} isFullPost />
@@ -42,7 +68,7 @@ export const FullPost = () => {
 				tags={data.tags}
 				isFullPost
 			>
-				<ReactMarkdown children={data.text}/>
+				<ReactMarkdown children={data.text} />
 			</Post>
 			<CommentsBlock
 				items={[
