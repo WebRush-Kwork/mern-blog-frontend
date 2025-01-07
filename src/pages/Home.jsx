@@ -11,17 +11,22 @@ import {
 	fetchPostsByPopularity,
 	fetchTags,
 } from '../redux/slices/posts'
+import { fetchLastComment } from '../redux/slices/comment'
 
 export const Home = () => {
 	const dispatch = useDispatch()
 	const userData = useSelector(state => state.auth.data)
 	const { posts, tags } = useSelector(state => state.posts)
+	const comments = useSelector(state => state.comments.data)
+	const commentsStatus = useSelector(state => state.comments)
 	const [isPopularPosts, setIsPopularPosts] = useState(false)
 	const isPostsLoading = posts.status === 'loading'
 	const isTagsLoading = tags.status === 'loading'
+	const isCommentsLoading = commentsStatus.status === 'loading'
 
 	useEffect(() => {
 		dispatch(fetchTags())
+		dispatch(fetchLastComment())
 		isPopularPosts ? dispatch(fetchPostsByPopularity()) : dispatch(fetchPosts())
 	}, [isPopularPosts])
 
@@ -61,23 +66,17 @@ export const Home = () => {
 				<Grid xs={4} item>
 					<TagsBlock items={tags.items} isLoading={isTagsLoading} />
 					<CommentsBlock
-						items={[
-							{
+						items={
+							!isCommentsLoading &&
+							comments.map(obj => ({
 								user: {
-									fullName: 'Вася Пупкин',
-									avatarUrl: 'https://mui.com/static/images/avatar/1.jpg',
+									fullName: obj?.user?.fullName,
+									avatarUrl: obj?.user?.avatarUrl,
 								},
-								text: 'Это тестовый комментарий',
-							},
-							{
-								user: {
-									fullName: 'Иван Иванов',
-									avatarUrl: 'https://mui.com/static/images/avatar/2.jpg',
-								},
-								text: 'When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top',
-							},
-						]}
-						isLoading={false}
+								text: obj.text,
+							}))
+						}
+						isLoading={isCommentsLoading}
 					/>
 				</Grid>
 			</Grid>
