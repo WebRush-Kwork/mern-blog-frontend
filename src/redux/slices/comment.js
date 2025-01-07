@@ -9,6 +9,14 @@ export const fetchAllComments = createAsyncThunk(
 	}
 )
 
+export const fetchLastComment = createAsyncThunk(
+	'comment/fetchLastComment',
+	async () => {
+		const { data } = await axios.get('/comment/last')
+		return data
+	}
+)
+
 const initialState = {
 	data: null,
 	status: 'loading',
@@ -28,6 +36,18 @@ const commentSlice = createSlice({
 			state.status = 'loaded'
 		},
 		[fetchAllComments.rejected]: state => {
+			state.data = null
+			state.status = 'error'
+		},
+		[fetchLastComment.pending]: state => {
+			state.data = null
+			state.status = 'loading'
+		},
+		[fetchLastComment.fulfilled]: (state, action) => {
+			state.data = action.payload
+			state.status = 'loaded'
+		},
+		[fetchLastComment.rejected]: state => {
 			state.data = null
 			state.status = 'error'
 		},

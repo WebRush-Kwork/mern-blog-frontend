@@ -32,25 +32,6 @@ export const FullPost = () => {
 		dispatch(fetchAllComments())
 	}, [])
 
-	// useEffect(() => {
-	// 	const result = commentData.map(item => ({
-	// 		fullName: item.user?.fullName || 'Имя отсутствует',
-	// 		text: item.text || 'Текст отсутствует',
-	// 	}))
-
-	// 	console.log(result)
-	// }, [])
-
-	// useEffect(() => {
-	// 	setTimeout(() => {
-	// 		commentData.map(obj => {
-	// 			console.log(obj)
-	// 		})
-	// 	}, 3000)
-	// }, [])
-
-	console.log(commentData)
-
 	if (isLoading) {
 		return <Post isLoading={isLoading} isFullPost />
 	}
@@ -71,23 +52,17 @@ export const FullPost = () => {
 				<ReactMarkdown children={data.text} />
 			</Post>
 			<CommentsBlock
-				items={[
-					{
+				items={
+					!isDataLoading &&
+					commentData.map(obj => ({
 						user: {
-							fullName: 'Вася Пупкин',
-							avatarUrl: 'https://mui.com/static/images/avatar/1.jpg',
+							fullName: obj?.user?.fullName,
+							avatarUrl: obj?.user?.avatarUrl,
 						},
-						text: 'Это тестовый комментарий 555555',
-					},
-					{
-						user: {
-							fullName: 'Иван Иванов',
-							avatarUrl: 'https://mui.com/static/images/avatar/2.jpg',
-						},
-						text: 'When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top',
-					},
-				]}
-				isLoading={false}
+						text: obj.text,
+					}))
+				}
+				isLoading={isDataLoading}
 			>
 				<Index />
 			</CommentsBlock>

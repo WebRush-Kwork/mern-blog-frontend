@@ -1,3 +1,4 @@
+import React from 'react'
 import { SideBlock } from './SideBlock'
 import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
@@ -9,7 +10,7 @@ import Skeleton from '@mui/material/Skeleton'
 
 export const CommentsBlock = ({ items, children, isLoading = true }) => {
 	return (
-		<SideBlock title='Комментарии'>
+		<SideBlock title='Последние комментарии'>
 			<List>
 				{(isLoading ? [...Array(5)] : items).map((obj, index) => (
 					<React.Fragment key={index}>
